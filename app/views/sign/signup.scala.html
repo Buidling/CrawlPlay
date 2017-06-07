@@ -1,0 +1,51 @@
+@(signUpForm: Form[(String, String, String)])(implicit flash: Flash)
+
+@import helper._
+
+@model_sign("注册登录") {
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image:url(@routes.Assets.at("images/bg.jpg"));
+            background-size: 100% 100%;
+            background-attachment:fixed;
+        }
+        #d {
+            height: 34em;
+            width: 23em;
+            background-color: #99FFFF;
+            opacity: 0.4;
+        }
+        .input1 {
+            value = "姓名"
+        }
+        td {
+            text-align: center;
+        }
+    </style>
+    <div id="d" style="position:absolute;left:36%;top:11%;"></div>
+    <div style="position:absolute;left:40%;top:15%;">
+        @form(routes.Sign.postSignUp) {
+            <table>
+                <tr>
+                    <td><a href="@routes.Sign.signUp">注册</a> </td>
+                    <td><a href="@routes.Sign.signIn">登录</a> </td>
+                </tr>
+                <tr>
+                    <td>@inputText(signUpForm("name"))</td>
+                </tr>
+                <tr>
+                    <td>@inputText(signUpForm("phone"))</td>
+                </tr>
+                <tr>
+                    <td>@inputPassword(signUpForm("password"))</td>
+                </tr>
+                <tr>
+                    <td><input type="submit" value="提交注册"></input></td>
+                </tr>
+            </table>
+        }
+    </div>
+
+}

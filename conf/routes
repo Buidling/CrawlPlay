@@ -13,3 +13,8 @@ GET     /products                   controllers.Products.list
 POST    /products                   controllers.Products.save
 GET     /products/new               controllers.Products.newProduct
 GET     /products/:ean              controllers.Products.show(ean: Long)
+
+#Sign
+GET     /signUp                     controllers.Sign.signUp
+GET     /signIn                     controllers.Sign.signIn
+POST    /signUp                     controllers.Sign.postSignUp

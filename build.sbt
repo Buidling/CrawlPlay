@@ -8,4 +8,6 @@ libraryDependencies ++= Seq(
   cache
 )
 
+libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.38"
+
 play.Project.playScalaSettings
