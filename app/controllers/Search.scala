@@ -1,7 +1,7 @@
 package controllers
 
-import models.Song
-import play.api.mvc.{Action, Controller}
+import models.LookFor
+import play.api.mvc.{Action, Controller, Flash}
 
 /**
   * Created by samsung on 2017/6/7.
@@ -9,8 +9,23 @@ import play.api.mvc.{Action, Controller}
 object Search extends Controller {
 
     def search = Action { implicit request =>
-        Ok(views.html.search(Song.songForm))
+        Ok(views.html.song.search(LookFor.lookForm))
     }
 
-    def doSearch = TODO
+    def search_detail(name: String) = Action { implicit request =>
+        Ok(views.html.song.result(name))
+    }
+
+    def doSearch() = Action { implicit request =>
+        val lookForm = LookFor.lookForm.bindFromRequest()
+        lookForm.fold(
+            hasErrors = { form =>
+                Redirect(routes.Search.search()).flashing(Flash(form.data) +
+                  ("error" -> "could not find this song."))
+            },
+            success = { form =>
+                Redirect(routes.Search.search_detail(form.name))
+            }
+        )
+    }
 }

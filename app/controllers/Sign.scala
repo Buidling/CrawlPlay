@@ -1,7 +1,8 @@
 package controllers
 
-import models.User
+import models.{Login, User}
 import play.api.mvc.{Action, Controller, Flash}
+import anorm.SqlParser._
 import anorm._
 import play.api.db.DB
 import play.api.Play.current
@@ -17,6 +18,7 @@ object Sign extends Controller {
 
     def postSignUp = Action { implicit request =>
         val userForm = User.form.bindFromRequest()
+        var ch = 0
         userForm.fold(
             hasErrors = { form =>
                 Redirect(routes.Sign.signUp()).
@@ -24,27 +26,58 @@ object Sign extends Controller {
             },
             success = { newUser =>
                 try {
-                    println("数据库连接中...")
+                    println("connecting database...")
                     DB.withConnection { implicit c =>
-                        val result: Int = SQL("insert into user(" +
-                          "user_name, user_phone, user_password) values ({name}, {phone}, {password})").on(
-                            "name" -> userForm.value.get._1, "phone" -> userForm.value.get._2,
-                        "password" -> userForm.value.get._3).executeUpdate()
+                        val change: Int = SQL("insert into user(user_name, user_phone, user_password) values (" +
+                          "{name}, {phone}, {password})").on("name" -> newUser._1,
+                            "phone" -> newUser._2, "password" -> newUser._3).executeUpdate()
+                        ch = change
                     }
                 } catch {
-                    case ex: Exception => println("连接失败")
+                    case ex: Exception =>
+                        println("connected failed: " + ex)
                 }
-                Redirect(routes.Sign.signIn()).flashing("success" -> "Register successfully!")
+                println("change: " + ch)
+                if (ch != 0) {
+                    Redirect(routes.Sign.signIn()).flashing("success" -> "Register successfully!")
+                } else {
+                    Redirect(routes.Sign.signUp()).
+                      flashing("success" -> "This name already exit, please try again.")
+                }
             }
         )
     }
 
     def signIn = Action { implicit request =>
-        Ok(views.html.sign.signin(User.form))
+        Ok(views.html.sign.signin(Login.loginForm))
     }
 
     def postSignIn = Action { implicit request =>
-        Redirect(routes.Search.search)
+        val loginForm = Login.loginForm.bindFromRequest()
+        loginForm.fold(
+            hasErrors = { form =>
+                Redirect(routes.Sign.signIn()).flashing(Flash(form.data) +
+                  ("error" -> "Sign in failed, please try again."))
+            },
+            success = { form =>
+                DB.withConnection { implicit c =>
+                    val result = {
+                        SQL("select * from user where user_name={name} and user_password={password}").on(
+                            "name" -> form.name, "password" -> form.password
+                        ).as(str("user_name") ~ str("user_password") *)
+                    }
+                    println("name: " + form.name)
+                    println("password: " + form.password)
+                    println("select: " + result)
+                    if (result.nonEmpty) {
+                        Redirect(routes.Search.search())
+                    } else {
+                        Redirect(routes.Sign.signIn()).flashing(
+                            "success" -> "name or password wrong.")
+                    }
+                }
+            }
+        )
     }
 
 }

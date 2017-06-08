@@ -21,5 +21,6 @@ POST    /signUp                     controllers.Sign.postSignUp
 POST    /signIn                     controllers.Sign.postSignIn
 
 #Search
-GET    /search                     controllers.Search.search
-POST    /search/detail              controllers.Search.doSearch
+GET     /search                     controllers.Search.search
+POST    /search/doSearch            controllers.Search.doSearch
+GET     /search/detail/:name         controllers.Search.search_detail(name: String)

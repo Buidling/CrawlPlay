@@ -1,4 +1,4 @@
-@(signUpForm: Form[(String, String, String)])(implicit flash: Flash)
+@(loginForm: Form[Login])(implicit flash: Flash)
 
 @import helper._
 
@@ -33,10 +33,10 @@
             <td><a href="@routes.Sign.signUp">注册</a> </td>
         </tr>
         <tr>
-            <td>@inputText(signUpForm("name"))</td>
+            <td>@inputText(loginForm("name"))</td>
         </tr>
         <tr>
-            <td>@inputPassword(signUpForm("password"))</td>
+            <td>@inputPassword(loginForm("password"))</td>
         </tr>
         <tr>
             <td><input type="submit" value="登录"></input></td>
