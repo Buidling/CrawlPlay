@@ -3,7 +3,7 @@
 @import helper._
 @import helper.twitterBootstrap._
 
-@main(Messages("products.form")) {
+@model.model_main(Messages("products.form")) {
     <h2>@Messages("products.form")</h2>
 
     @form(action=routes.Products.save()) {

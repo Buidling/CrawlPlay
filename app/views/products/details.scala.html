@@ -1,6 +1,6 @@
 @(product: Product)(implicit flash: Flash, lang: Lang)
 
-@main(Messages("products.details", product.name)) {
+@model.model_main(Messages("products.details", product.name)) {
     <h2>
         @Messages("products.details", product.name)
     </h2>

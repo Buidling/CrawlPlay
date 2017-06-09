@@ -1,6 +1,6 @@
 @(products: List[Product])(implicit flash: Flash, lang: Lang)
 
-@main(Messages("application.name")) {
+@model.model_main(Messages("application.name")) {
     <dl class="products">
         @for(product <- products) {
             <dt>@product.name</dt>

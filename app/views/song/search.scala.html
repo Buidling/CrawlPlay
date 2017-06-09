@@ -2,78 +2,35 @@
 
 @import helper._
 
-@model_normal("搜索") {
+@model.model_search("搜索") {
     <style>
-        .btn {
-            position: relative;
-            display: inline-block;
-            padding: 6px 12px;
-            font-size: 13px;
-            font-weight: bold;
-            line-height: 20px;
-            color: #333;
-            white-space: nowrap;
-            vertical-align: middle;
-            cursor: pointer;
-            background-color: #EEE;
-            background-image: -webkit-linear-gradient(#FCFCFC, #EEE);
-            background-image: linear-gradient(#FCFCFC, #EEE);
-            background-repeat: repeat-x;
-            border: 1px solid #d5d5d5;
-            border-radius: 3px;
-            user-select: none;
-            -webkit-appearance: none;
-        }
-
-        .btn:focus,
-        input[type=text]:focus,
-        input[type=password]:focus {
-            text-decoration: none;
-            border-color: #51a7e8;
-            outline: none;
-            box-shadow: 0 0 5px rgba(81, 167, 232, 0.5);
-        }
-
-        .btn:hover,
-        .btn:active {
-            text-decoration: none;
-            background-color: #ddd;
-            background-image: -webkit-linear-gradient(#eee, #ddd);
-            background-image: linear-gradient(#eee, #ddd);
-            background-repeat: repeat-x;
-            border-color: #ccc;
-        }
-
-        .btn:active {
-            background-color: #dcdcdc;
-            background-image: none;
-            border-color: #b5b5b5;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
-        }
-        label[for=search] {
-            display: block;
-            text-align: left;
-        }
-        #search label {
-            font-weight: 200;
-            padding: 5px 0;
-        }
-        #search input[type=text] {
-            font-size: 18px;
-            width: 705px;
-        }
-        #search .btn {
-            padding: 10px;
-            width: 90px;
-        }
+        .div1 {
+            width: 100%;
+            height: 14em;
+            margin: 0 auto;
+            padding: 0;
+            background-image:url(@routes.Assets.at("images/search_bg.jpg"));
+            background-size: 100% 100%;
+            background-attachment:fixed;
+            position: absolute;
+         }
     </style>
-
-    @form(routes.Search.doSearch, 'id -> "search") {
-        <table>
-            <tr>
-                <td>@inputText(lookForm("name"))</td>
-                <td><input class="btn" type="submit" value="Search"></td>
-            </tr>
-        </table>
-    }
+    <div>
+        <ul>
+            <li><a href=""></a> </li>
+            <li><a href=""></a> </li>
+        </ul>
+    </div>
+    <div class="div1">
+        <div class="div2">
+            @form(routes.Search.doSearch) {
+                <table>
+                    <tr>
+                        <td>@inputText(lookForm("name"), '_label -> "")</td>
+                        <td><input type="submit" value="Search" id="search"></td>
+                    </tr>
+                </table>
+            }
+        </div>
+    </div>
 }
