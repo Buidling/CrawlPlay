@@ -1,5 +1,54 @@
-@(song: String)
+@(lookForm: Form[LookFor])(array: Option[Array[Song]])(implicit flash: Flash)
 
-@model.model_search(song) {
-    <p>song: @song</p>
+@import helper._
+
+@model.model_search("搜索") {
+    <style>
+        .div1 {
+            width: 100%;
+            height: 14em;
+            padding: 0;
+            background-image:url(@routes.Assets.at("images/search_bg.jpg"));
+            background-size: 100% 100%;
+            background-attachment:fixed;
+            position: absolute;
+            display: block;
+            margin-top: 5%;
+         }
+    </style>
+    <div class="ul1">
+        <ul >
+            <li><a href="@routes.Pictures.search()"><div class="p1">图片</div></a> </li>
+            <li><a href="@routes.MV.search()"><div class="p1 p_current">MV</div></a> </li>
+        </ul>
+    </div>
+    <div class="div1">
+        <div class="div2">
+            @form(routes.MV.doSearch) {
+            <table>
+                <tr>
+                    <td>@inputText(lookForm("name"), '_label -> "")</td>
+                    <td><input type="submit" value="Search" id="search"></td>
+                </tr>
+            </table>
+            }
+        </div>
+    </div>
+
+    @if(array.isInstanceOf[Some[Array[Song]]]) {
+    <div class="div3">
+        <div class="title">@flash.get("singer")</div>
+        <ul>
+            @for( i <- 0 until array.get.size) {
+            <li>
+                <div class="div4">
+                    <a href="@array.get(i).href"><img src="@array.get(i).img"></a>
+                    <a href="@array.get(i).href"><span>@array.get(i).name</span></a>
+                    <p>@array.get(i).singer</p>
+                </div>
+            </li>
+            }
+        </ul>
+    </div>
+    }
 }

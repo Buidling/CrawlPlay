@@ -7,23 +7,24 @@
         .div1 {
             width: 100%;
             height: 14em;
-            margin: 0 auto;
             padding: 0;
             background-image:url(@routes.Assets.at("images/search_bg.jpg"));
             background-size: 100% 100%;
             background-attachment:fixed;
-            position: absolute;
+            position: fixed;
+            display: block;
+            margin-top: 5%;
          }
     </style>
-    <div>
-        <ul>
-            <li><a href=""></a> </li>
-            <li><a href=""></a> </li>
+    <div class="ul1">
+        <ul >
+            <li><a href="@routes.Pictures.search()"><div class="p1">图片</div></a> </li>
+            <li><a href="@routes.MV.search()"><div class="p1 p_current">MV</div></a> </li>
         </ul>
     </div>
     <div class="div1">
         <div class="div2">
-            @form(routes.Search.doSearch) {
+            @form(routes.MV.doSearch) {
                 <table>
                     <tr>
                         <td>@inputText(lookForm("name"), '_label -> "")</td>
@@ -33,4 +34,5 @@
             }
         </div>
     </div>
+
 }

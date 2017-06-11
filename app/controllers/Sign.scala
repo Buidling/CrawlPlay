@@ -70,7 +70,7 @@ object Sign extends Controller {
                     println("password: " + form.password)
                     println("select: " + result)
                     if (result.nonEmpty) {
-                        Redirect(routes.Search.search())
+                        Redirect(routes.MV.search())
                     } else {
                         Redirect(routes.Sign.signIn()).flashing(
                             "success" -> "name or password wrong.")

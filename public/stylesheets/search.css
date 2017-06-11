@@ -23,10 +23,120 @@
     #search:hover {
         background:#FF69B4;
     }
-     .div2 {
+    .div2 {
         position:absolute;
         top: 50%;
         left: 50%;
         margin-top: -50px;
         margin-left: -250px;
-     }
+    }
+    .ul1 {
+        height: 40px;
+        width: 100%;
+        padding: 0;
+        position: absolute;
+        background-size: 100% 100%;
+        background-attachment:fixed;
+        background-color: #2F4F4F;
+    }
+    .ul1 > ul {
+        height: 100%;
+        width: 100%;
+        margin: 0 auto;
+        list-style: none;
+        display: block;
+    }
+    .ul1 > ul > li {
+        height: 100%;
+        width: 90px;
+        float: left;
+        margin-left: 0px;
+        text-align: center;
+    }
+    .ul1 > ul > li > a {
+        height: 100%;
+        width: 100%;
+        margin: 0 auto;
+        text-decoration: none;
+        text-align: center;
+        display: table;
+    }
+    .ul1 > ul > li > a:hover {
+        background-color: #1A1A1A;
+    }
+    .p_current {
+        background-color: #1A1A1A;
+    }
+    .p1 {
+        height: 100%;
+        width: 100%;
+        line-height: 100%;
+        color: #EEEEE0;
+        font-size: 20px;
+        margin: 0 auto;
+        align: center;
+        display: table-cell;
+        vertical-align: middle;
+    }
+    .div3 {
+        width: 1200px;
+        height: 100%;
+        padding 0;
+        position: absolute;
+        margin-top: 26%;
+        margin-left: 5%;
+    }
+    .div3 > ul {
+        height: 100%;
+        width: 100%;
+        margin: 0 auto;
+        list-style: none;
+        display: block;
+    }
+    .div3 > ul > li {
+        width: 180px;
+        height: 150px;
+        float: left;
+        margin-left: 30px;
+        margin-bottom: 30px;
+    }
+    .div4 {
+        height: 100%;
+        width: 100%;
+    }
+    .div4 > a {
+        width: 100%;
+        text-decoration: none;
+        text-align: center;
+        display: block;
+    }
+    .div4 > a > img {
+        height: 101px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .div4 > a > span {
+        color: #171717;
+        margin-top: 5px;
+        display: block;
+        text-align: left;
+    }
+    .div4 > a > span:hover {
+        color: #EE82EE;
+    }
+    .div4 > p {
+        width: 180px;
+        height: 30px;
+        text-align: left;
+        color: #EE82EE;
+        margin: 0 auto;
+        margin-top: 5px;
+    }
+    div.title {
+        width: 100%;
+        height: 50px;
+        font-size: 25px;
+        color: #EE82EE;
+        display: block;
+        margin-left: 60px;
+    }
