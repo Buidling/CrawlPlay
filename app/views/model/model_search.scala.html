@@ -11,5 +11,57 @@
 <div class="container">
     @content
 </div>
+
+<script type="text/javascript">
+        function delCookie(name)
+        {
+            var exp = new Date();
+            exp.setTime(exp.getTime() - 1);
+            var cval=getCookie(name);
+            if(cval!=null)
+                document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+        }
+
+        function setCookie(name,value)
+        {
+            var Days = 30;
+            var exp = new Date();
+            exp.setTime(exp.getTime() + Days*24*60*60*1000);
+            document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+        }
+
+        function getCookie(name)
+        {
+            var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+
+            if(arr=document.cookie.match(reg))
+
+                return unescape(arr[2]);
+            else
+                return null;
+        }
+
+        var e = document.getElementById("imgs");
+        for(var i=0; i < e.childElementCount; i++){
+            e.children[i].children[0].children[0].onclick = function(event){
+                var choice = this.getAttribute("choice");
+                var id = this.getAttribute("id")
+                console.log(id);
+                if(choice == null || choice == 'false'){
+                    this.setAttribute("choice", true);
+                    this.childNodes[0].style.opacity = "0.6";
+                    this.style.backgroundColor = "#A2B5CD";
+                    setCookie("mvId"+ id, id)
+                    console.log(getCookie("mvId" + id))
+                 }else{
+                    this.setAttribute("choice", false);
+                    this.childNodes[0].style.opacity = "1";
+                    this.style.backgroundColor = "";
+                    delCookie("mvId" + id)
+                    console.log(getCookie("mvId" + id))
+                }
+            };
+        }
+    </script>
 </body>
 </html>

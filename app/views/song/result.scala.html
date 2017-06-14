@@ -1,8 +1,9 @@
-@(lookForm: Form[LookFor])(array: Option[Array[Song]])(implicit flash: Flash)
+@(lookForm: Form[LookFor])(array: Option[Array[Song]])(implicit session: Session)
 
 @import helper._
 
 @model.model_search("搜索") {
+
     <style>
         .div1 {
             width: 100%;
@@ -15,9 +16,14 @@
             display: block;
             margin-top: 5%;
          }
+         .img-1 {
+            background-image:url(@routes.Assets.at("images/tick.jpg"));
+            background-size: 100% 100%;
+            background-attachment:fixed;
+         }
     </style>
     <div class="ul1">
-        <ul >
+        <ul>
             <li><a href="@routes.Pictures.search()"><div class="p1">图片</div></a> </li>
             <li><a href="@routes.MV.search()"><div class="p1 p_current">MV</div></a> </li>
         </ul>
@@ -35,20 +41,28 @@
         </div>
     </div>
 
+
     @if(array.isInstanceOf[Some[Array[Song]]]) {
     <div class="div3">
-        <div class="title">@flash.get("singer")</div>
-        <ul>
+        <div class="div5">
+            <ul>
+                <li><a href="@routes.MV.search_detail">@session.get("singer")</a></li>
+                <li><a href="@routes.MV.do_collect()">收藏</a></li>
+            </ul>
+        </div>
+        <ul id="imgs">
             @for( i <- 0 until array.get.size) {
-            <li>
-                <div class="div4">
-                    <a href="@array.get(i).href"><img src="@array.get(i).img"></a>
-                    <a href="@array.get(i).href"><span>@array.get(i).name</span></a>
-                    <p>@array.get(i).singer</p>
-                </div>
-            </li>
+                <li>
+                    <div class="div4">
+                        <a id="@i"><img src="@array.get(i).img"></a>
+                        <a href="@array.get(i).href"><span>@array.get(i).name</span></a>
+                        <p>@array.get(i).singer</p>
+                    </div>
+                </li>
             }
         </ul>
     </div>
     }
+
+    <a class="btn1" href="@routes.MV.save_mv">收 藏</a>
 }

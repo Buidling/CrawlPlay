@@ -27,3 +27,6 @@ GET     /picture                    controllers.Pictures.search
 GET     /mv                         controllers.MV.search
 POST    /mv/doSearch                controllers.MV.doSearch
 GET     /mv/detail                  controllers.MV.search_detail
+GET     /mv/detail                  controllers.MV.save_mv
+GET     /mv/do_collect              controllers.MV.do_collect
+GET     /mv/myCollect              controllers.MV.myCollect

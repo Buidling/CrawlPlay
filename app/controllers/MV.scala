@@ -2,8 +2,12 @@ package controllers
 
 import models.{LookFor, Song}
 import org.jsoup.Jsoup
+import play.api.db.DB
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller, Flash}
+import anorm.SqlParser._
+import anorm._
+import play.api.Play.current
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -13,13 +17,22 @@ import scala.collection.mutable.ArrayBuffer
 object MV extends Controller {
 
     var op: Option[Array[Song]] = None
+    var op_collect: Option[Array[Song]] = None
 
     def search = Action { implicit request =>
         Ok(views.html.song.search(LookFor.lookForm))
     }
 
     def search_detail = Action { implicit request =>
+        op match {
+            case Some(array) => println("ok")
+            case None => searching(session.get("user_name").get)
+        }
         Ok(views.html.song.result(LookFor.lookForm)(op))
+    }
+
+    def myCollect = Action { implicit request =>
+        Ok(views.html.song.collect(LookFor.lookForm)(op_collect))
     }
 
     def doSearch() = Action { implicit request =>
@@ -30,6 +43,7 @@ object MV extends Controller {
                   ("error" -> "could not find this song."))
             },
             success = { form =>
+//                println("session singer: " + session.get("singer"))
                 val str = "http://mvsearch.kugou.com/mv_search?keyword=1&page=1&pagesize=60"
                 val pattern = "keyword=1".r
                 val url = pattern replaceFirstIn(str, "keyword=" + form.name)
@@ -46,7 +60,6 @@ object MV extends Controller {
 //                println(ids.length)
 //                println(pictures.length)
 //                println(singers.length)
-                pictures foreach( a => println(a.toString))
                 val aBuffer = new ArrayBuffer[Song]()
                 for (i <- 0 until names.size) {
                     val name = "[\"]".r replaceAllIn(names(i).toString, "")
@@ -55,15 +68,15 @@ object MV extends Controller {
                     val pp = "[\"]".r replaceAllIn(pictures(i).toString, "")
                     val picture = "http://imge.kugou.com/mvhdpic/240/" + pp.substring(0, 8) + "/" + pp
                     val singer = "[\"]".r replaceAllIn(singers(i).toString, "")
-                    println(name)
-                    println(id)
-                    println(picture)
-                    println(singer)
+//                    println(name)
+//                    println(id)
+//                    println(picture)
+//                    println(singer)
                     val song = Song(id, picture, name, singer)
                     aBuffer append(song)
                 }
                 op = Some(aBuffer.toArray)
-                Redirect(routes.MV.search_detail()).flashing("singer" -> form.name)
+                Redirect(routes.MV.search_detail()).withSession(session + ("singer" -> form.name))
 
 //                以下为正则表达式方法（未完成）
 //                val p_MvName = "MvName\":\".*?\"".r
@@ -89,5 +102,89 @@ object MV extends Controller {
 //                }
             }
         )
+    }
+
+    /**
+      * 保存mv内容到mysql
+      * @return
+      */
+    def save_mv = Action { implicit request =>
+        val aBuffer = new ArrayBuffer[String]()
+        for( i <- 0 until 60) {
+            val ids = request.cookies.get("mvId" + i)
+            ids match {
+                case Some(cookie) => {
+                    println(cookie.value)
+                    aBuffer append(cookie.value)
+                }
+                case None => println("cookie" + i + "is empty")
+            }
+        }
+        searching(session.get("singer").get)
+        val array = aBuffer.toArray
+        val arraySong = op.get
+        for (i <- array.indices) {
+            DB.withConnection { implicit c =>
+                SQL("insert into mv(href, img, mv_name, mv_singer, user_name) values (" +
+                  "{href}, {img}, {mv_name}, {mv_singer}, {user_name})").on("href" -> arraySong(i).href,
+                "img" -> arraySong(i).img, "mv_name" -> arraySong(i).name, "mv_singer" -> arraySong(i).singer,
+                "user_name" -> session.get("user_name")).executeUpdate()
+            }
+        }
+        Redirect(routes.MV.search_detail())
+    }
+
+    /**
+      * 根据输入的字符串查找mv
+      * @param name
+      */
+    def searching(name: String): Unit = {
+        val str = "http://mvsearch.kugou.com/mv_search?keyword=1&page=1&pagesize=60"
+        val pattern = "keyword=1".r
+        val url = pattern replaceFirstIn(str, "keyword=" + name)
+        val doc = Jsoup.connect(url).timeout(10000).get()
+        val first = doc.toString.indexOf("{")
+        val last = doc.toString.lastIndexOf("}")
+        val jsonObj = Json.parse(doc.toString.substring(first,last+1))
+        val list = (jsonObj \ "data") \ "lists"
+        val names = (list \\ "MvName").toArray
+        val ids = (list \\ "MvID").toArray
+        val pictures = (list \\ "Pic").toArray
+        val singers = (list \\ "SingerName").toArray
+        val aBuffer = new ArrayBuffer[Song]()
+        for (i <- 0 until names.size) {
+            val name = "[\"]".r replaceAllIn(names(i).toString, "")
+            val pi = "[\"]".r replaceAllIn(ids(i).toString, "")
+            val id = "http://www.kugou.com/mvweb/html/mv_" + pi + ".html"
+            val pp = "[\"]".r replaceAllIn(pictures(i).toString, "")
+            val picture = "http://imge.kugou.com/mvhdpic/240/" + pp.substring(0, 8) + "/" + pp
+            val singer = "[\"]".r replaceAllIn(singers(i).toString, "")
+            val song = Song(id, picture, name, singer)
+            aBuffer append(song)
+        }
+        op = Some(aBuffer.toArray)
+    }
+
+    /**
+      *转跳收藏页
+      */
+    def do_collect = Action { implicit request =>
+        val aBuffer = new ArrayBuffer[Song]()
+        DB.withConnection{ implicit c =>
+//            val result = SQL("select * from mv where user_name = {user_name}").on("user_name" -> session.get("user_name")).as(
+//                str("href")~str("img")~str("mv_name")~str("mv_singer") *)
+            val result = SQL(
+                """
+                  |select * from mv where user_name = {user_name};
+                """.stripMargin
+            ).on("user_name" -> session.get("user_name").get)
+            result().collect {
+                case Row(href: String, img: String, mv_name: String, mv_singer: String, user_name: String) =>
+                    val song = Song(href, img, mv_name, mv_singer)
+                    aBuffer append(song)
+            }
+            op_collect = Some(aBuffer.toArray)
+        }
+        Redirect(routes.MV.myCollect())
     }
 }
