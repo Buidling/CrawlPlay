@@ -41,6 +41,17 @@
                 return null;
         }
 
+        function delMVid()
+        {
+            var e = document.getElementById("imgs");
+            for(var i=0; i < e.childElementCount; i++){
+                if(getCookie("mvId" + i) != null) {
+                    console.log(getCookie("mvId" + i))
+                    delCookie("mvId" + i)
+                }
+            }
+        }
+
         var e = document.getElementById("imgs");
         for(var i=0; i < e.childElementCount; i++){
             e.children[i].children[0].children[0].onclick = function(event){

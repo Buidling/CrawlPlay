@@ -34,7 +34,7 @@
         <table>
             <tr>
                 <td>@inputText(lookForm("name"), '_label -> "")</td>
-                <td><input type="submit" value="Search" id="search"></td>
+                <td><input type="submit" value="Search" id="search" onclick="delMVid()"></td>
             </tr>
         </table>
         }
@@ -46,8 +46,8 @@
 <div class="div3">
     <div class="div5">
         <ul>
-            <li><a href="@routes.MV.search_detail">@session.get("singer")</a></li>
-            <li><a href="@routes.MV.do_collect()">收藏</a></li>
+            <li><a onclick="delMVid()" href="@routes.MV.search_detail">@session.get("singer")</a></li>
+            <li><a onclick="delMVid()" href="@routes.MV.do_collect()">收藏</a></li>
         </ul>
     </div>
     <ul id="imgs">
@@ -64,5 +64,5 @@
 </div>
 }
 
-<a class="btn1" href="@routes.MV.save_mv">删 除</a>
+<a class="btn1" href="@routes.MV.delete_mv">删 除</a>
 }

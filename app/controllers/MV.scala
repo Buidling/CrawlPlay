@@ -1,6 +1,7 @@
 package controllers
 
 import models.{LookFor, Song}
+import models.Constants._
 import org.jsoup.Jsoup
 import play.api.db.DB
 import play.api.libs.json.Json
@@ -25,7 +26,7 @@ object MV extends Controller {
 
     def search_detail = Action { implicit request =>
         op match {
-            case Some(array) => println("ok")
+            case Some(array) => println("user_name is not null")
             case None => searching(session.get("user_name").get)
         }
         Ok(views.html.song.result(LookFor.lookForm)(op))
@@ -110,7 +111,8 @@ object MV extends Controller {
       */
     def save_mv = Action { implicit request =>
         val aBuffer = new ArrayBuffer[String]()
-        for( i <- 0 until 60) {
+        println("save mv")
+        for( i <- 0 until mvCount) {
             val ids = request.cookies.get("mvId" + i)
             ids match {
                 case Some(cookie) => {
@@ -123,12 +125,23 @@ object MV extends Controller {
         searching(session.get("singer").get)
         val array = aBuffer.toArray
         val arraySong = op.get
+        val user_name = session.get("user_name").get
         for (i <- array.indices) {
             DB.withConnection { implicit c =>
-                SQL("insert into mv(href, img, mv_name, mv_singer, user_name) values (" +
-                  "{href}, {img}, {mv_name}, {mv_singer}, {user_name})").on("href" -> arraySong(i).href,
-                "img" -> arraySong(i).img, "mv_name" -> arraySong(i).name, "mv_singer" -> arraySong(i).singer,
-                "user_name" -> session.get("user_name")).executeUpdate()
+                val result = {
+                    SQL("select user_name,href from mv where user_name={user_name} and href={href}").on(
+                        "user_name" -> user_name, "href" -> arraySong(i).href
+                    ).as(str("user_name") ~ str("href") *)
+                }
+                println("result isEmpty?: " + result.isEmpty)
+                if (result.isEmpty) {
+                    SQL("insert into mv(href, img, mv_name, mv_singer, user_name) values (" +
+                      "{href}, {img}, {mv_name}, {mv_singer}, {user_name})").on("href" -> arraySong(i).href,
+                    "img" -> arraySong(i).img, "mv_name" -> arraySong(i).name, "mv_singer" -> arraySong(i).singer,
+                    "user_name" -> user_name).executeUpdate()
+                } else {
+                    println("This song has already exit in your collection: " + arraySong(i).name)
+                }
             }
         }
         Redirect(routes.MV.search_detail())
@@ -166,25 +179,56 @@ object MV extends Controller {
     }
 
     /**
-      *转跳收藏页
+      *转跳到收藏页
       */
     def do_collect = Action { implicit request =>
         val aBuffer = new ArrayBuffer[Song]()
         DB.withConnection{ implicit c =>
-//            val result = SQL("select * from mv where user_name = {user_name}").on("user_name" -> session.get("user_name")).as(
-//                str("href")~str("img")~str("mv_name")~str("mv_singer") *)
             val result = SQL(
                 """
                   |select * from mv where user_name = {user_name};
                 """.stripMargin
             ).on("user_name" -> session.get("user_name").get)
-            result().collect {
-                case Row(href: String, img: String, mv_name: String, mv_singer: String, user_name: String) =>
+            result() foreach {
+                case Row(href: String, img: String, mv_name: String, mv_singer: String, _) =>
+                    println("href: " + href)
+                    println("img: " + img)
+                    println("mv_name: " + mv_name)
+                    println("mv_singer: " + mv_singer)
                     val song = Song(href, img, mv_name, mv_singer)
                     aBuffer append(song)
             }
             op_collect = Some(aBuffer.toArray)
         }
         Redirect(routes.MV.myCollect())
+    }
+
+    /**
+      * 删除mv
+      */
+    def delete_mv = Action { implicit request =>
+        val aBuffer = new ArrayBuffer[String]()
+        println("delete mv")
+        for( i <- 0 until mvCount) {
+            val ids = request.cookies.get("mvId" + i)
+            ids match {
+                case Some(cookie) => {
+                    println(cookie.value)
+                    aBuffer append(cookie.value)
+                }
+                case None => println("cookie" + i + "is empty")
+            }
+        }
+        val array = aBuffer.toList
+        val arraySong = op_collect.get
+        val user_name = session.get("user_name").get
+        DB.withConnection{ implicit c =>
+            array foreach { i =>
+                SQL("delete from mv where user_name={user_name} and img={img}").on(
+                    "user_name" -> user_name, "img" -> arraySong(i.toInt).img).executeUpdate()
+                println("delete mv " + i + ":  " + arraySong(i.toInt).name)
+            }
+        }
+        Redirect(routes.MV.do_collect())
     }
 }
