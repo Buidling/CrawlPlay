@@ -127,20 +127,21 @@ object MV extends Controller {
         val arraySong = op.get
         val user_name = session.get("user_name").get
         for (i <- array.indices) {
+            val j = array(i).toInt
             DB.withConnection { implicit c =>
                 val result = {
                     SQL("select user_name,href from mv where user_name={user_name} and href={href}").on(
-                        "user_name" -> user_name, "href" -> arraySong(i).href
+                        "user_name" -> user_name, "href" -> arraySong(j).href
                     ).as(str("user_name") ~ str("href") *)
                 }
                 println("result isEmpty?: " + result.isEmpty)
                 if (result.isEmpty) {
                     SQL("insert into mv(href, img, mv_name, mv_singer, user_name) values (" +
-                      "{href}, {img}, {mv_name}, {mv_singer}, {user_name})").on("href" -> arraySong(i).href,
-                    "img" -> arraySong(i).img, "mv_name" -> arraySong(i).name, "mv_singer" -> arraySong(i).singer,
+                      "{href}, {img}, {mv_name}, {mv_singer}, {user_name})").on("href" -> arraySong(j).href,
+                    "img" -> arraySong(j).img, "mv_name" -> arraySong(j).name, "mv_singer" -> arraySong(j).singer,
                     "user_name" -> user_name).executeUpdate()
                 } else {
-                    println("This song has already exit in your collection: " + arraySong(i).name)
+                    println("This song has already exit in your collection: " + arraySong(j).name)
                 }
             }
         }
@@ -220,14 +221,19 @@ object MV extends Controller {
             }
         }
         val array = aBuffer.toList
-        val arraySong = op_collect.get
-        val user_name = session.get("user_name").get
-        DB.withConnection{ implicit c =>
-            array foreach { i =>
-                SQL("delete from mv where user_name={user_name} and img={img}").on(
-                    "user_name" -> user_name, "img" -> arraySong(i.toInt).img).executeUpdate()
-                println("delete mv " + i + ":  " + arraySong(i.toInt).name)
-            }
+        op_collect match {
+            case Some(arraySong) =>
+                val user_name = session.get("user_name").get
+                DB.withConnection { implicit c =>
+                    array foreach { i =>
+                        if (i.toInt < arraySong.length) {
+                            SQL("delete from mv where user_name={user_name} and img={img}").on(
+                                "user_name" -> user_name, "img" -> arraySong(i.toInt).img).executeUpdate()
+                            println("delete mv " + i + ":  " + arraySong(i.toInt).name)
+                        }
+                    }
+                }
+            case None => println("op_collect is None")
         }
         Redirect(routes.MV.do_collect())
     }

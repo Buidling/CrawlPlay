@@ -6,6 +6,7 @@
 <head>
     <title>@title</title>
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/search.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/monkey.png")">
 </head>
 <body>
 <div class="container">
@@ -44,10 +45,11 @@
         function delMVid()
         {
             var e = document.getElementById("imgs");
+            console.log("delete mvIDs")
             for(var i=0; i < e.childElementCount; i++){
                 if(getCookie("mvId" + i) != null) {
-                    console.log(getCookie("mvId" + i))
-                    delCookie("mvId" + i)
+                    console.log(getCookie("mvId" + i));
+                    delCookie("mvId" + i);
                 }
             }
         }
